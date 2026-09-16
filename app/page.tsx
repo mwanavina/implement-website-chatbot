@@ -1,10 +1,10 @@
 'use client'
 
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useRef, useState } from 'react'
 import { ArrowUpRight, BriefcaseBusiness, Building2, ChevronRight, Headphones, MapPin, MessageCircle, PackageSearch, Send, Sparkles, X } from 'lucide-react'
 
 type Message = { role: 'user' | 'assistant'; content: string }
-const suggestions = ['What does Magigo Systems offer?', 'Where are your hardware shops?', 'Do you have dairy products?', 'I need a quote']
+const suggestions = ['What products does Magigo Hardware sell?', 'What does Magigo Systems offer?', 'Do Seah Farms have eggs and yoghurt?', 'I need a quote']
 const companies = [
   ['Magigo Hardware', 'Retail & supplies', 'Computers, accessories, hardware and technology essentials.', Building2],
   ['Magigo Systems', 'Technology services', 'IT support, web development, systems development and data analytics.', BriefcaseBusiness],
@@ -16,6 +16,11 @@ export default function Page() {
   const [input, setInput] = useState('')
   const [open, setOpen] = useState(true)
   const [loading, setLoading] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (open) messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+  }, [messages, loading, open])
 
   async function sendMessage(event?: FormEvent, preset?: string) {
     event?.preventDefault()
@@ -48,7 +53,7 @@ export default function Page() {
 
     <div className="relative"><div className="absolute -inset-4 rounded-[2.5rem] bg-[#e5eadc] blur-2xl" /><div className="relative overflow-hidden rounded-[2rem] border border-[#d5dfd2] bg-white shadow-[0_24px_60px_rgba(35,67,44,0.12)]">
       <div className="flex items-center justify-between border-b border-[#e8ede7] bg-[#fbfcfa] px-5 py-4"><div className="flex items-center gap-3"><div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-[#204b35] text-[#eef4df]"><Sparkles size={18} /><span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#82a83f]" /></div><div><div className="text-sm font-bold text-[#204b35]">Magigo Assist</div><div className="text-xs text-[#829084]">Online · replies in seconds</div></div></div><button aria-label="Toggle assistant" onClick={() => setOpen(!open)} className="rounded-full p-2 text-[#829084]">{open ? <X size={17} /> : <MessageCircle size={18} />}</button></div>
-      {open && <><div className="flex h-[370px] flex-col gap-4 overflow-y-auto bg-[#fbfcfa] p-5">{messages.map((message, index) => <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === 'user' ? 'rounded-br-md bg-[#204b35] text-white' : 'rounded-bl-md border border-[#e1e8de] bg-white text-[#435348]'}`}>{message.content}</div></div>)}{loading && <div className="rounded-2xl rounded-bl-md border border-[#e1e8de] bg-white px-4 py-3 text-sm text-[#829084]">Thinking...</div>}</div><div className="border-t border-[#e8ede7] bg-white p-4"><div className="mb-3 flex flex-wrap gap-2">{suggestions.map((suggestion) => <button key={suggestion} onClick={() => sendMessage(undefined, suggestion)} className="rounded-full border border-[#dce5d8] px-3 py-1.5 text-[11px] text-[#607163]">{suggestion}</button>)}</div><form onSubmit={sendMessage} className="flex items-center gap-2 rounded-xl border border-[#d9e2d7] bg-[#fbfcfa] p-1.5"><input aria-label="Ask Magigo Assist" value={input} onChange={(event) => setInput(event.target.value)} placeholder="Ask about Magigo..." className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm outline-none" /><button aria-label="Send message" type="submit" disabled={!input.trim() || loading} className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#204b35] text-white disabled:opacity-50"><Send size={16} /></button></form></div></>}
+      {open && <><div className="flex h-[370px] flex-col gap-4 overflow-y-auto bg-[#fbfcfa] p-5">{messages.map((message, index) => <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm leading-6 ${message.role === 'user' ? 'rounded-br-md bg-[#204b35] text-white' : 'rounded-bl-md border border-[#e1e8de] bg-white text-[#435348]'}`}>{message.content}</div></div>)}{loading && <div className="rounded-2xl rounded-bl-md border border-[#e1e8de] bg-white px-4 py-3 text-sm text-[#829084]">Thinking...</div>}<div ref={messagesEndRef} aria-hidden="true" /></div><div className="border-t border-[#e8ede7] bg-white p-4"><div className="mb-3 flex flex-wrap gap-2">{suggestions.map((suggestion) => <button key={suggestion} onClick={() => sendMessage(undefined, suggestion)} className="rounded-full border border-[#dce5d8] px-3 py-1.5 text-[11px] text-[#607163]">{suggestion}</button>)}</div><form onSubmit={sendMessage} className="flex items-center gap-2 rounded-xl border border-[#d9e2d7] bg-[#fbfcfa] p-1.5"><input aria-label="Ask Magigo Assist" value={input} onChange={(event) => setInput(event.target.value)} placeholder="Ask about Magigo..." className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm outline-none" /><button aria-label="Send message" type="submit" disabled={!input.trim() || loading} className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#204b35] text-white disabled:opacity-50"><Send size={16} /></button></form></div></>}
     </div></div></section>
 
     <section id="companies" className="border-y border-[#dce3da] bg-white/55 px-6 py-16 lg:px-10"><div className="mx-auto max-w-7xl"><div className="mb-8"><div className="text-xs font-bold uppercase tracking-[0.18em] text-[#6d8b36]">The Magigo group</div><h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[#173823]">Built around what people need.</h2></div><div className="grid gap-4 md:grid-cols-3">{companies.map(([name, tag, copy, Icon]) => <div key={name} className="rounded-2xl border border-[#dce5d8] bg-[#fbfcfa] p-6"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#e8efdf] text-[#52743e]"><Icon size={21} /></div><div className="mt-8 text-xs font-semibold uppercase tracking-[0.14em] text-[#78905d]">{tag}</div><h3 className="mt-2 text-xl font-semibold text-[#204b35]">{name}</h3><p className="mt-3 text-sm leading-6 text-[#718073]">{copy}</p></div>)}</div></div></section>
