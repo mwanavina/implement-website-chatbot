@@ -1,4 +1,4 @@
-import { gateway, generateText } from 'ai'
+import { gateway, generateText, type ModelMessage } from 'ai'
 import { NextResponse } from 'next/server'
 
 const companyContext = `
@@ -13,11 +13,25 @@ Be warm, concise, and practical. Help users choose the right company. For quotes
 `
 
 export async function POST(request: Request) {
-  let messages: Array<{ role: string; content: string }> = []
+  let messages: ModelMessage[] = []
 
   try {
     const body = await request.json()
-    messages = Array.isArray(body?.messages) ? body.messages.slice(-12) : []
+    messages = Array.isArray(body?.messages)
+      ? body.messages
+          .slice(-12)
+          .filter(
+            (message: unknown): message is { role: 'user' | 'assistant'; content: unknown } =>
+              typeof message === 'object' &&
+              message !== null &&
+              ('role' in message) &&
+              (message.role === 'user' || message.role === 'assistant'),
+          )
+          .map((message: { role: 'user' | 'assistant'; content: unknown }): ModelMessage => ({
+            role: message.role,
+            content: typeof message.content === 'string' ? message.content : JSON.stringify(message.content),
+          }))
+      : []
     const result = await generateText({ model: gateway('openai/gpt-5-mini'), system: companyContext, messages })
     return NextResponse.json({ text: result.text })
   } catch {
