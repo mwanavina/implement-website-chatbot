@@ -13,9 +13,11 @@ Be warm, concise, and practical. Help users choose the right company. For quotes
 `
 
 export async function POST(request: Request) {
+  let messages: Array<{ role: string; content: string }> = []
+
   try {
     const body = await request.json()
-    const messages = Array.isArray(body?.messages) ? body.messages.slice(-12) : []
+    messages = Array.isArray(body?.messages) ? body.messages.slice(-12) : []
     const result = await generateText({ model: gateway('openai/gpt-5-mini'), system: companyContext, messages })
     return NextResponse.json({ text: result.text })
   } catch {
